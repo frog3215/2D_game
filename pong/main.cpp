@@ -7,12 +7,12 @@
 
 // секция данных игры  
 typedef struct {
-    float x, y, width, height, rad, dx, dy, speed;
+    float x, y, width, height, rad, dx, dy, speed, graviti , jump;
     HBITMAP hBitmap;//хэндл к спрайту шарика 
 } sprite;
 
 sprite racket;//ракетка игрока
-
+sprite platform;
 
 struct {
     int score, balls;//количество набранных очков и оставшихся "жизней"
@@ -36,19 +36,23 @@ void InitGame()
     //результат работы LoadImageA сохраняет в хэндлах битмапов, рисование спрайтов будет произовдиться с помощью этих хэндлов
 
     racket.hBitmap = (HBITMAP)LoadImageA(NULL, "racket.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-   
+    platform.hBitmap = (HBITMAP)LoadImageA(NULL, "racket.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     hBack = (HBITMAP)LoadImageA(NULL, "back.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     //------------------------------------------------------
 
-    
+    racket.graviti = 30;
+    racket.jump = 0;
     racket.width = 100;
     racket.height = 100;
     racket.speed = 30;//скорость перемещения ракетки
     racket.x = window.width / 5.;//ракетка посередине окна
     racket.y = window.height - racket.height;//чуть выше низа экрана - на высоту ракетки
-    
-   
+    platform.width = 500;
+    platform.height = 50;
+    platform.x = 600;
+    platform.y = window.height - 400;
 
+    
    
     
 
@@ -85,14 +89,13 @@ void ShowScore()
 
 void JUMP()
 {
-    racket.y += 10;
-    racket.y = min(racket.y, window.height - racket.height);
-    if (GetAsyncKeyState(VK_SPACE))
+    if (GetAsyncKeyState(VK_SPACE) && racket.y == window.height - racket.height)
     {
-        racket.y = max(racket.y, racket.height / 2.);
-        racket.y -= racket.height + 10;
+        racket.jump = 110;
     }
-    
+    racket.y += racket.graviti - racket.jump;
+    racket.y = min(racket.y, window.height - racket.height);
+    racket.jump *= 0.9;
 }
 void ProcessInput()
 {
@@ -140,7 +143,8 @@ void ShowRacketAndBall()
 {
     ShowBitmap(window.context, 0, 0, window.width, window.height, hBack);//задний фон
     ShowBitmap(window.context, racket.x - racket.width / 2., racket.y, racket.width, racket.height, racket.hBitmap);// ракетка игрока
-
+    ShowBitmap(window.context, platform.x - platform.width / 2., platform.y, platform.width, platform.height, platform.hBitmap);
+    
     
 
 
