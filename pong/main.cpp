@@ -86,7 +86,22 @@ void ShowScore()
     TextOutA(window.context, 200, 100, (LPCSTR)txt, strlen(txt));
 }
 
-
+void colision()
+{
+    if (racket.x + racket.width >= platform.x && 
+        racket.x <= platform.x + platform.width && 
+        racket.y <= platform.y + platform.height &&
+        racket.y + racket.height >= platform.y)
+    {
+        racket.x = platform.x - racket.x + racket.width;
+        racket.x = platform.x + platform.width - racket.x;
+        racket.y = platform.y - racket.y + racket.height;
+        racket.y = platform.y + platform.height - racket.y;
+        //over.x = min();
+        racket.y = min(racket.y, platform.y - racket.height);
+    }
+    
+}
 void JUMP()
 {
     if (GetAsyncKeyState(VK_SPACE) && racket.y == window.height - racket.height)
@@ -142,8 +157,8 @@ void ShowBitmap(HDC hDC, int x, int y, int x1, int y1, HBITMAP hBitmapBall, bool
 void ShowRacketAndBall()
 {
     ShowBitmap(window.context, 0, 0, window.width, window.height, hBack);//задний фон
-    ShowBitmap(window.context, racket.x - racket.width / 2., racket.y, racket.width, racket.height, racket.hBitmap);// ракетка игрока
-    ShowBitmap(window.context, platform.x - platform.width / 2., platform.y, platform.width, platform.height, platform.hBitmap);
+    ShowBitmap(window.context, racket.x, racket.y, racket.width, racket.height, racket.hBitmap);// ракетка игрока
+    ShowBitmap(window.context, platform.x, platform.y, platform.width, platform.height, platform.hBitmap);
     
     
 
@@ -224,6 +239,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     while (!GetAsyncKeyState(VK_ESCAPE))
     {
         ShowRacketAndBall();//рисуем фон, ракетку и шарик
+        colision();
         ShowScore();//рисуем очик и жизни
         BitBlt(window.device_context, 0, 0, window.width, window.height, window.context, 0, 0, SRCCOPY);//копируем буфер в окно
         Sleep(16);//ждем 16 милисекунд (1/количество кадров в секунду)
